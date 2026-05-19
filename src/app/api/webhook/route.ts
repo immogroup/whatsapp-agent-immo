@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { waitUntil } from "@vercel/functions";
 import { supabaseAdmin } from "@/lib/supabase";
 import { sendWhatsAppMessage } from "@/lib/whatsapp";
 import { getAIResponse } from "@/lib/openrouter";
@@ -21,9 +22,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const body: MetaWebhookPayload = await req.json();
 
-  // Always respond 200 quickly to avoid Meta retries
-  const process = handleIncoming(body);
-  process.catch(console.error);
+  // waitUntil keeps the Vercel function alive until AI processing completes
+  // even after the 200 response is sent to Meta
+  waitUntil(handleIncoming(body).catch(console.error));
 
   return NextResponse.json({ status: "ok" });
 }
