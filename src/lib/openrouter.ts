@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import CLOUD9_SYSTEM_PROMPT from "./system-prompt";
 
 function getClient(): OpenAI {
   return new OpenAI({
@@ -14,9 +15,8 @@ function getClient(): OpenAI {
 export async function getAIResponse(
   history: { role: "user" | "assistant"; content: string }[]
 ): Promise<string> {
-  const systemPrompt =
-    process.env.AI_SYSTEM_PROMPT ||
-    "You are C9, a helpful AI concierge assistant. Be friendly, concise, and professional.";
+  // AI_SYSTEM_PROMPT env var can override the default Cloud9 prompt if set
+  const systemPrompt = process.env.AI_SYSTEM_PROMPT || CLOUD9_SYSTEM_PROMPT;
 
   const completion = await getClient().chat.completions.create({
     model: process.env.OPENROUTER_MODEL || "openai/gpt-4o-mini",
